@@ -1,0 +1,109 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model Product {
+  id           String        @id @default(cuid()) @map("_id")
+  title        String
+  description  String
+  imageURLs    String[]
+  category     String
+  categoryId   String
+  price        Float
+  finalPrice   Float?
+  discount     Float?
+  featured     Boolean
+  productSizes ProductSize[]
+
+  createdAt DateTime    @default(now()) @map("created_at")
+  updatedAt DateTime    @default(now()) @updatedAt @map("updated_at")
+  OrderItem OrderItem[]
+}
+
+model Category {
+  id            String         @id @default(cuid()) @map("_id")
+  billboard     String
+  billboardId   String
+  category      String
+  categorySizes CategorySize[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+}
+
+model Billboard {
+  id        String @id @default(cuid()) @map("_id")
+  billboard String
+  imageURL  String
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+}
+
+model Size {
+  id            String         @id @default(cuid()) @map("_id")
+  name          String
+  productSizes  ProductSize[]
+  categorySizes CategorySize[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+}
+
+model ProductSize {
+  id        String   @id @default(cuid()) @map("_id")
+  productId String
+  sizeId    String
+  product   Product? @relation(fields: [productId], references: [id])
+  size      Size     @relation(fields: [sizeId], references: [id])
+  name      String?  @map("name")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  @@index([productId])
+  @@index([sizeId])
+}
+
+model CategorySize {
+  id         String   @id @default(cuid()) @map("_id")
+  categoryId String
+  sizeId     String
+  category   Category @relation(fields: [categoryId], references: [id])
+  size       Size     @relation(fields: [sizeId], references: [id])
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  @@index([categoryId])
+  @@index([sizeId])
+}
+
+model OrderItem {
+  id          String  @id @default(cuid()) @map("_id")
+  orderId     String
+  order       Order   @relation(fields: [orderId], references: [id])
+  productId   String
+  product     Product @relation(fields: [productId], references: [id])
+  productName String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([orderId])
+  @@index([productId])
+}
+
+model Order {
+  id         String      @id @default(cuid()) @map("_id")
+  orderItems OrderItem[]
+  isPaid     Boolean     @default(false)
+  phone      String      @default("")
+  address    String      @default("")
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+}
