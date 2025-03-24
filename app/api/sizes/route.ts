@@ -20,7 +20,6 @@ export async function POST(req: Request) {
         });
       })
     );
-
     const categorySizeCreateManyInput = createdSizes.map((size) => ({
       categoryId,
       sizeId: size.id,
